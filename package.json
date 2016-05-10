@@ -1,0 +1,23 @@
+{
+  "name": "nblue-demo-server",
+  "version": "1.0.0",
+  "description": "Demo server",
+  "main": "start.js",
+  "scripts": {
+    "start": "node start.js",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nblue2016/nblue-demo-server.git"
+  },
+  "author": "Bruce Jiang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nblue2016/nblue-demo-server/issues"
+  },
+  "homepage": "https://github.com/nblue2016/nblue-demo-server#readme",
+  "dependencies": {
+    "nblue-core": "0.0.1"
+  }
+}
