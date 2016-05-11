@@ -18,6 +18,6 @@
   },
   "homepage": "https://github.com/nblue2016/nblue-demo-server#readme",
   "dependencies": {
-    "nblue-core": "0.0.1"
+    "nblue-core": "0.0.2"
   }
 }

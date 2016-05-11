@@ -1,13 +1,12 @@
+const url = require('url')
 const fs = require('fs')
 const path = require('path')
-const querystring = require('querystring')
-const url = require('url')
+const http = require('http')
 
-const fake = require('nblue-core').fake
-const FakedServer = fake.http
+const core = require('nblue-core')
+const FakedServer = core.fake.http
 
 const staticFolders = ['/data', '/error/static']
-const aq = require('nblue-core').aq
 
 const getContentTypeByExtName = (ext) => {
   switch(ext) {
@@ -23,33 +22,22 @@ const getContentTypeByExtName = (ext) => {
   }
 }
 
-class server extends FakedServer
+class Server extends FakedServer
 {
   constructor(...args)
   {
     super(args[0])
   }
 
-  start()
+  createServer()
   {
-    console.log('start')
-    super.start()
+    return http.createServer(Server.process)
   }
 
-  stop()
+  static process(req, res)
   {
-    console.log('stop')
-    super.stop()
-  }
-
-  process(req, res)
-  {
-    console.log(req.url)
     const u = url.parse(req.url)
-
     const pathname = u.pathname || '/'
-    const path = u.path || '/'
-
 
     if (pathname === "/") {
       //process root folder
@@ -69,25 +57,30 @@ class server extends FakedServer
         (() => {
 
           //get file full name
-          let dataFile = __dirname + pathname
+          const dataFile = __dirname + pathname
 
           aq.call(null, fs.stat, dataFile)
-            .then(err => dataFile)
-            .then(data => aq.call(null, fs.readFile, data))
             .then(data => {
-              res.writeHead(200, {'content-type': getContentTypeByExtName('json')})
-              res.write(data)
+
+              const contentType = getContentTypeByExtName(path.extname(dataFile))
+
+              res.writeHead(200, {'content-type': contentType})
+              fs.createReadStream(dataFile).pipe(res)
             })
-            .catch(err => {console.log('not found')})
-            .finally(() => {
+            .catch(err => {
+              res.writeHead(404, {'content-type': 'text/plain'})
+              res.write('not found')
               res.end()
             })
+            .done()
         })()
 
         return
       }
     }
+
+    FakedServer.process(req, res)
   }
 }
 
-module.exports = server
+module.exports = Server
