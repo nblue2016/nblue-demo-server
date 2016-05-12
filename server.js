@@ -27,15 +27,25 @@ class Server extends FakedServer
   constructor(...args)
   {
     super(args[0])
+
+    //this.server = null
   }
 
   createServer()
   {
-    return http.createServer(Server.process)
+    const server = http.createServer(this.process)
+
+    server.ctx = this
+
+    return server
   }
 
-  static process(req, res)
+  process(req, res)
   {
+    const that = (this && this.ctx) ? this.ctx : {}
+
+    console.log(req.headers)
+
     const u = url.parse(req.url)
     const pathname = u.pathname || '/'
 

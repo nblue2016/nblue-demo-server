@@ -4,11 +4,17 @@ const Server = require('./server')
 const server = new Server(1093)
 server.start()
 
-fetch('http://localhost:1093/')
-  .then(res => (res.ok) ? res.text() : 0)
-  .then(data => console.log(data))
-  .then(() => console.log('Test OK!'))
-  .done()
+try {
+
+  fetch('http://localhost:1093/')
+    .then(res => (res.ok) ? res.text() : 0)
+    .then(data => console.log(data))
+    .then(() => console.log('Test OK!'))
+    .done()
+}
+catch(err) {
+  console.log(err.message)
+}
 
 const f0 = aq.rest.bind(aq, 'http://localhost:1093/')
 const f1 = aq.rest.bind(aq, 'http://localhost:1093/data/test.json')
