@@ -1,37 +1,18 @@
+const fs = require('fs')
 const core = require('nblue-core')
 const Server = require('./server')
 
-const server = new Server(1093)
+//parse server config file
+const configFile = String.format("%s/server.yaml", __dirname)
+const config = ConfigMap.parseYAML(fs.readFileSync(configFile, 'utf-8')) || {}
+
+//get settings from config file
+const port = config.get('port') || 8088
+const staticFolders = config.get('staticFolders') || []
+
+//create new instance of server and start
+const server = new Server(port)
+staticFolders.forEach(folder => server.staticFolders.push(folder))
+
 server.start()
-
-try {
-
-  fetch('http://localhost:1093/')
-    .then(res => (res.ok) ? res.text() : 0)
-    .then(data => console.log(data))
-    .then(() => console.log('Test OK!'))
-    .done()
-}
-catch(err) {
-  console.log(err.message)
-}
-
-const f0 = aq.rest.bind(aq, 'http://localhost:1093/')
-const f1 = aq.rest.bind(aq, 'http://localhost:1093/data/test.json')
-const f2 = aq.rest.bind(aq, 'http://localhost:1093/data/test2.json')
-const f3 = aq.rest.bind(aq, 'http://localhost:1093/data/error.json')
-
-Promise.race([f2(), f1(), f0()])
-  .then(data => console.log(data))
-
-/*
-aq.parallel([f0(), f1(), f2()])
-  .then(data => console.log(data))
-  .catch(err => console.log(err))
-  */
-
-aq.series([f2(), f0(), f1()])
-  .then(data => console.log(data))
-
-f3()
-  .catch(err => console.log(err.status))
+console.log(String.format("server started on port: %s", port))

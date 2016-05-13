@@ -1,0 +1,7 @@
+{
+  "error":
+  {
+      "code": 10224,
+      "message": "Account doesn't exist"
+  }
+}

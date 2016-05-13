@@ -6,7 +6,7 @@ const http = require('http')
 const core = require('nblue-core')
 const FakedServer = core.fake.http
 
-const staticFolders = ['/data', '/error/static']
+const defaultFolders = ['data', 'error/static']
 
 const getContentTypeByExtName = (ext) => {
   switch(ext) {
@@ -28,8 +28,10 @@ class Server extends FakedServer
   {
     super(args[0])
 
-    //this.server = null
+    this.staticFolders = []
   }
+
+  get StaticFolders() { return this.staticFolders }
 
   createServer()
   {
@@ -42,12 +44,12 @@ class Server extends FakedServer
 
   process(req, res)
   {
-    const that = (this && this.ctx) ? this.ctx : {}
-
-    console.log(req.headers)
+    const ctx = (this && this.ctx) ? this.ctx : {}
 
     const u = url.parse(req.url)
     const pathname = u.pathname || '/'
+
+    console.log(String.format("request file: %s", pathname))
 
     if (pathname === "/") {
       //process root folder
@@ -57,17 +59,19 @@ class Server extends FakedServer
       return
     }
 
+    const staticFolders = ctx.StaticFolders || defaultFolders
+
     let paths = pathname.split('/').filter(s => s !== '')
 
     //catch satic files
     for(let folder of staticFolders) {
 
-      if (pathname.startsWith(folder)) {
+      if (pathname.startsWith('/' + folder)) {
 
         (() => {
 
           //get file full name
-          const dataFile = __dirname + pathname
+          const dataFile = String.format("%s/%s", __dirname, pathname)
 
           aq.call(null, fs.stat, dataFile)
             .then(data => {
@@ -78,6 +82,7 @@ class Server extends FakedServer
               fs.createReadStream(dataFile).pipe(res)
             })
             .catch(err => {
+              console.log('request file failed')
               res.writeHead(404, {'content-type': 'text/plain'})
               res.write('not found')
               res.end()
@@ -89,7 +94,10 @@ class Server extends FakedServer
       }
     }
 
-    FakedServer.process(req, res)
+    console.log('request file failed')
+    res.writeHead(404, {'content-type': 'text/plain'})
+    res.write(String.format("not found: %s", pathname))
+    res.end()
   }
 }
 
