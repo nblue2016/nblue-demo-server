@@ -49,8 +49,6 @@ class Server extends FakedServer
     const u = url.parse(req.url)
     const pathname = u.pathname || '/'
 
-    console.log(String.format("request file: %s", pathname))
-
     if (pathname === "/") {
       //process root folder
       res.writeHead(200, {"content-type":"text/plain"})
@@ -59,7 +57,9 @@ class Server extends FakedServer
       return
     }
 
-    const staticFolders = ctx.StaticFolders || defaultFolders
+    const staticFolders
+      = (ctx.StaticFolders && ctx.StaticFolders.length > 0)
+        || defaultFolders
 
     let paths = pathname.split('/').filter(s => s !== '')
 
@@ -82,6 +82,7 @@ class Server extends FakedServer
               fs.createReadStream(dataFile).pipe(res)
             })
             .catch(err => {
+              
               console.log('request file failed')
               res.writeHead(404, {'content-type': 'text/plain'})
               res.write('not found')
