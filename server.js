@@ -4,37 +4,42 @@ const path = require('path')
 const http = require('http')
 
 const core = require('nblue-core')
-const FakedServer = core.fake.http
+const fake = core.fake
+const FakedServer = fake.http
 
 const defaultFolders = ['data', 'error/static']
 
 const getContentTypeByExtName = (ext) => {
   switch(ext) {
-    case 'json':
-      return 'application/json'
-    case 'html':
-    case 'htm':
-      return 'text/html'
-      case 'txt':
-        return 'text/plain'
-    default:
-      return ''
+  case 'json':
+
+    return 'application/json'
+  case 'html':
+  case 'htm':
+
+    return 'text/html'
+  case 'txt':
+
+    return 'text/plain'
+  default:
+    return ''
   }
 }
 
 class Server extends FakedServer
 {
-  constructor(...args)
-  {
+
+  constructor(...args) {
     super(args[0])
 
     this.staticFolders = []
   }
 
-  get StaticFolders() { return this.staticFolders }
+  get StaticFolders() {
+    return this.staticFolders
+  }
 
-  createServer()
-  {
+  createServer() {
     const server = http.createServer(this.process)
 
     server.ctx = this
@@ -42,8 +47,7 @@ class Server extends FakedServer
     return server
   }
 
-  process(req, res)
-  {
+  process(req, res) {
     const ctx = (this && this.ctx) ? this.ctx : {}
 
     const u = url.parse(req.url)
@@ -54,6 +58,7 @@ class Server extends FakedServer
       res.writeHead(200, {"content-type":"text/plain"})
       res.write("This is a root")
       res.end()
+
       return
     }
 
@@ -63,32 +68,28 @@ class Server extends FakedServer
 
     let paths = pathname.split('/').filter(s => s !== '')
 
-    //catch satic files
+    // catch satic files
     for(let folder of staticFolders) {
-
       if (pathname.startsWith('/' + folder)) {
-
         (() => {
-
-          //get file full name
+          // get file full name
           const dataFile = String.format("%s/%s", __dirname, pathname)
 
-          aq.call(null, fs.stat, dataFile)
-            .then(data => {
-
+          aq.
+            call(null, fs.stat, dataFile).
+            then((data) => {
               const contentType = getContentTypeByExtName(path.extname(dataFile))
 
               res.writeHead(200, {'content-type': contentType})
               fs.createReadStream(dataFile).pipe(res)
-            })
-            .catch(err => {
-              
+            }).
+            catch((err) => {
               console.log('request file failed')
               res.writeHead(404, {'content-type': 'text/plain'})
               res.write('not found')
               res.end()
-            })
-            .done()
+            }).
+            done()
         })()
 
         return
@@ -100,6 +101,7 @@ class Server extends FakedServer
     res.write(String.format("not found: %s", pathname))
     res.end()
   }
+
 }
 
 module.exports = Server
