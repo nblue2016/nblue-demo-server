@@ -3,8 +3,8 @@ const fs = require('fs')
 const path = require('path')
 const http = require('http')
 
-const core = require('nblue-core')
-const fake = core.fake
+const nblue = require('nblue')
+const fake = nblue.fake
 const FakedServer = fake.http
 
 const defaultFolders = ['data', 'error/static']
@@ -49,7 +49,6 @@ class Server extends FakedServer
 
   process(req, res) {
     const ctx = (this && this.ctx) ? this.ctx : {}
-
     const u = url.parse(req.url)
     const pathname = u.pathname || '/'
 
@@ -63,10 +62,13 @@ class Server extends FakedServer
     }
 
     const staticFolders
-      = (ctx.StaticFolders && ctx.StaticFolders.length > 0)
-        || defaultFolders
+      = ctx.StaticFolders && ctx.StaticFolders.length > 0
+        ? ctx.staticFolders
+        : defaultFolders
 
     let paths = pathname.split('/').filter(s => s !== '')
+
+
 
     // catch satic files
     for(let folder of staticFolders) {

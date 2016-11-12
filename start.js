@@ -1,4 +1,4 @@
-require('nblue-core')
+require('nblue')
 
 const fs = require('fs')
 const Server = require('./server')

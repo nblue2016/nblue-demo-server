@@ -1,4 +1,4 @@
-require('nblue-core')
+require('nblue')
 const Server = require('./server')
 const port = 1033
 
@@ -20,7 +20,7 @@ try {
   const f3 = aq.rest.bind(aq, String.format("%s/%s", baseUrl, staticFiles[2]))
 
   aq.
-    Promise(1).
+    then(1).
     then((data) => {
       console.log('ready')
 
